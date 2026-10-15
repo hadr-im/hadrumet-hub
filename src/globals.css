@@ -1,0 +1,244 @@
+@import "tailwindcss";
+
+/*
+  Hadrumet Hub — design tokens.
+
+  The LC's mark is square Kufic calligraphy: monolinear white strokes on a strict
+  orthogonal grid, with negative space as wide as the strokes themselves. The
+  interface follows the same construction — hairline rules, right angles, modules
+  that lock to a grid, and dark space left genuinely empty.
+*/
+@theme {
+  /*
+    Surfaces. Every step is the same hue as the page itself, just lifted — a
+    neutral gray panel on this slightly blue base reads as a foreign object.
+  */
+  --color-base: #0e1115;
+  --color-surface: #161a20;
+  --color-raised: #1d222a;
+  --color-line: #262c34;
+  --color-line-strong: #38404a;
+
+  /* Ink — warm whites, matched to the logo rather than pure #fff */
+  --color-fg: #f2f0ec;
+  --color-fg-muted: #a0a09c;
+  --color-fg-dim: #6c6c69;
+
+  /* Accent — AIESEC blue, stepped to read on a dark surface */
+  --color-accent: #2b86d8;
+  --color-accent-bright: #4ea3ef;
+  --color-accent-dim: #1d5c96;
+
+  /*
+    Department corners. Validated as a categorical set against this dark surface:
+    lightness band, chroma floor, colourblind separation and contrast all pass.
+    Never cycled, never reassigned by rank — a corner keeps its hue everywhere.
+  */
+  --color-corner-brand: #b8841f;
+  --color-corner-exchange: #2b86d8;
+  --color-corner-power: #2e9e84;
+  --color-corner-general: #9169cc;
+
+  /* Status — reserved. Always shipped with a written label, never colour alone. */
+  --color-urgent: #e05252;
+  --color-ontrack: #2e9e84;
+  --color-behind: #c98a2e;
+
+  /*
+    One family, worked across its width axis. Archivo Expanded for headlines —
+    wide, flat-sided capitals that rhyme with the mark's square Kufic construction;
+    Archivo at normal width for everything else.
+  */
+  --font-display: "Archivo", system-ui, sans-serif;
+  --font-sans: "Archivo", system-ui, "Segoe UI", sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+
+    /*
+      Page transitions slide content in from off-screen and sweep a full-width panel
+      across, both of which briefly reach past the right edge and make the document
+      wider than the window — which shows up as a horizontal scrollbar flickering in
+      and out.
+
+      `clip` rather than `hidden`: hidden would turn this into a scroll container and
+      take the vertical scrolling with it. Clip leaves the other axis alone.
+    */
+    overflow-x: clip;
+  }
+
+  body {
+    overflow-x: clip;
+  }
+
+  body {
+    @apply bg-base text-fg-muted font-sans antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply text-fg font-display;
+    font-stretch: 125%;
+    text-wrap: balance;
+  }
+
+  /* Keyboard focus stays visible everywhere, on the accent rather than the browser default. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-fg-muted;
+  }
+
+  ::selection {
+    @apply bg-fg/20 text-fg;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* The announcement index's left rule, filling downward as its turn runs out. */
+@keyframes fill-down {
+  from {
+    height: 0%;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+/* The structure section's one call to action. One slow breath in and out, then a
+   rest — no hard edge at any point, so it reads as alive rather than flashing. */
+@keyframes beckon {
+  0%,
+  100% {
+    border-color: var(--color-line);
+    background-color: rgb(255 255 255 / 0);
+  }
+  35% {
+    border-color: var(--color-fg-muted);
+    background-color: rgb(255 255 255 / 0.06);
+  }
+  70% {
+    border-color: var(--color-line);
+    background-color: rgb(255 255 255 / 0);
+  }
+}
+
+/* A sheen travelling along a filled progress bar, so it reads as something still
+   running rather than a static block.
+
+   Moved with a transform rather than background-position: a percentage background
+   position is measured against the gap between the element and its image, so it
+   barely travels and reads as static. */
+@keyframes flow {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+@utility bar-flow {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.32) 22%,
+    transparent 44%,
+    transparent 100%
+  );
+  animation: flow 2.6s linear infinite;
+}
+
+/*
+  The page-transition title. It keeps its stroke the whole time and only its fill
+  changes, so the letters never move or change weight — the word is drawn once and
+  then inked in, rather than two different things swapping places.
+*/
+@utility stroke-title {
+  -webkit-text-stroke: 1.5px var(--color-fg);
+  paint-order: stroke fill;
+}
+
+/* Two beats, then it stays inked. The last third of the hold is deliberately still:
+   the word settles and is readable for a moment before the page moves on. */
+@keyframes ink {
+  0% {
+    color: transparent;
+  }
+  22% {
+    color: var(--color-fg);
+  }
+  44% {
+    color: transparent;
+  }
+  66%,
+  100% {
+    color: var(--color-fg);
+  }
+}
+
+/* The typewriter's cursor, blinking only while the word sits at rest. */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* The one piece of non-user-triggered motion on the page: the hero's scroll cue. */
+@keyframes drain {
+  0% {
+    transform: translateY(-100%);
+  }
+  60%,
+  100% {
+    transform: translateY(1200%);
+  }
+}
+
+/* Headline setting for display text that isn't an h1/h2/h3 element. */
+@utility headline {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+}
+
+/* A panel is a module in the grid: hairline edge, no shadow, no float. */
+@utility panel {
+  @apply border border-line bg-surface;
+}
+
+/* Scrolls, but without the bar — used on the dropdown lists, where a scrollbar
+   would be the only piece of operating-system chrome on the page. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* The page's horizontal measure, shared by every section so edges line up. */
+@utility shell {
+  @apply mx-auto w-full max-w-[104rem] px-12;
+}
