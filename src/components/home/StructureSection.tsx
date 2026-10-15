@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowDown, ChevronRight, Mail, Phone } from "lucide-react";
+import { ArrowDown, ChevronRight, Mail, Phone, UserRound } from "lucide-react";
 import { DEPARTMENT_NAME, lcp, members, reportsOf } from "../../data/mock";
 import type { Department, Member } from "../../data/types";
 import { cx } from "../../lib/format";
@@ -14,6 +14,23 @@ const vps = reportsOf(lcp.id);
 type Stage = { view: "lcp" } | { view: "eb" } | { view: "dept"; vpId: string };
 
 const EASE = [0.33, 1, 0.68, 1] as const;
+
+/**
+ * A stand-in for a face. The tree is about posts rather than people, so a portrait
+ * would be claiming something the card isn't saying — and the photographs were
+ * placeholder strangers anyway.
+ */
+const Avatar = ({ box, icon }: { box: string; icon: number }) => (
+  <span
+    aria-hidden="true"
+    className={cx(
+      "grid shrink-0 place-items-center border border-line bg-raised text-fg-dim transition-colors group-hover:text-fg-muted",
+      box,
+    )}
+  >
+    <UserRound size={icon} strokeWidth={1.4} />
+  </span>
+);
 
 /* ---------------------------------------------------------------- nodes --- */
 
@@ -32,11 +49,7 @@ const HeadCard = ({
     onClick={onOpen}
     className="group flex w-72 items-center gap-4 border border-line bg-base px-5 py-4 text-left transition-colors hover:border-fg-muted hover:bg-white/4"
   >
-    <img
-      src={member.photo}
-      alt=""
-      className="size-14 shrink-0 object-cover grayscale transition-all group-hover:grayscale-0"
-    />
+    <Avatar box="size-14" icon={24} />
     <span className="min-w-0">
       <span className="block truncate font-semibold text-fg">{roleTitle(member)}</span>
       {caption && (
@@ -88,14 +101,10 @@ const BoardCard = ({
       active ? "border-fg-muted bg-white/4" : "border-line hover:border-fg-muted hover:bg-white/4",
     )}
   >
-    {/* pb-7 guarantees breathing room above the rule even on the shortest card,
-        where mt-auto would otherwise leave almost none. */}
-    <span className="flex items-center gap-3 px-4 pb-7">
-      <img
-        src={member.photo}
-        alt=""
-        className="size-10 shrink-0 object-cover grayscale transition-all group-hover:grayscale-0"
-      />
+    {/* A little room above the rule even on the shortest card, where mt-auto would
+        otherwise leave almost none. */}
+    <span className="flex items-center gap-3 px-4 pb-4">
+      <Avatar box="size-10" icon={18} />
       <span className="min-w-0 text-sm leading-tight font-semibold text-fg">
         VP {member.department}
       </span>
@@ -130,7 +139,7 @@ const roleTitle = (member: Member) => {
     case "tl":
       return `${member.department} Team Leader`;
     default:
-      return `${member.department} Team Member`;
+      return `${member.department} Member`;
   }
 };
 
@@ -168,13 +177,9 @@ const PersonCard = ({
             : "w-48 gap-3 px-3.5 py-3",
       )}
     >
-      <img
-        src={member.photo}
-        alt=""
-        className={cx(
-          "shrink-0 object-cover grayscale transition-all group-hover:grayscale-0",
-          isLead ? (roomy ? "size-13" : "size-11") : roomy ? "size-11" : "size-10",
-        )}
+      <Avatar
+        box={isLead ? (roomy ? "size-13" : "size-11") : roomy ? "size-11" : "size-10"}
+        icon={isLead ? (roomy ? 22 : 20) : roomy ? 20 : 18}
       />
       <span
         className={cx(
@@ -457,11 +462,7 @@ const StructureSection = () => {
                 onClick={() => setOpenId(lcp.id)}
                 className="group flex w-96 items-center gap-5 border border-line bg-base px-7 py-6 text-left transition-colors hover:border-fg-muted hover:bg-white/4"
               >
-                <img
-                  src={lcp.photo}
-                  alt=""
-                  className="size-20 shrink-0 object-cover grayscale transition-all group-hover:grayscale-0"
-                />
+                <Avatar box="size-20" icon={32} />
                 <span className="min-w-0">
                   <span className="block text-xl leading-tight font-bold tracking-tight text-fg">
                     {roleTitle(lcp)}
@@ -643,11 +644,7 @@ const StructureSection = () => {
           <>
             <div className="relative border-b border-line bg-[radial-gradient(110%_80%_at_0%_0%,rgba(255,255,255,0.07),transparent_72%)] px-8 pt-7 pb-6">
               <div className="flex items-center gap-4">
-                <img
-                  src={open.photo}
-                  alt=""
-                  className="size-16 shrink-0 border border-line object-cover"
-                />
+                <Avatar box="size-16" icon={28} />
                 <div className="min-w-0">
                   <h3 id="member-name" className="text-xl leading-tight font-bold tracking-tight">
                     {open.name}
